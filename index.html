@@ -6,7 +6,7 @@
   <title>일할급여 계산기</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', sans-serif; background:#f3f4f6 }
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background:#f3f4f6 }
     .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
 
     .tone-input {
@@ -30,12 +30,12 @@
     .tone-chip { display:inline-flex; gap:.375rem; align-items:center; padding:.25rem .5rem; border-radius:.375rem; font-size:.6875rem; font-weight:600; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; }
     .value-xl { font-size:1.375rem; font-weight:800; color:#111827 }
     .value { font-weight:700; color:#111827 }
-    .hint { font-size:.75rem; color:#6b7280 }
+    .hint { font-size:.75rem; color:#6b7280; margin:0; }
     .hr { height:1px; background:#e5e7eb; margin:1rem 0 }
 
     /* 정렬 안정화: 모든 필드 하단 동일 높이(2줄 가정) */
     .field { display:flex; flex-direction:column; gap:.375rem; }
-    .help { line-height:1.125rem; min-height: calc(2 * 1.125rem); }
+    .help { line-height:1.125rem; min-height: calc(2 * 1.125rem); margin:0; }
 
     /* 인풋 행(기본 4칸), 5칸 버전 추가 */
     @media (min-width:640px){
@@ -44,6 +44,8 @@
     }
     @media (max-width:639.98px){
       .row, .row-5 { display:grid; grid-template-columns:1fr; gap:.5rem; }
+      /* ✅ 모바일에서는 힌트 아래 여백이 생기지 않도록 1줄만 확보 */
+      .help { min-height: 1.125rem; }
     }
 
     /* 명세서 카드 */
@@ -109,7 +111,7 @@
             <div class="field">
               <label for="nontax1" class="text-sm text-gray-700">비과세(월)</label>
               <div class="input-wrap">
-                <input id="nontax1" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="예: 200,000">
+                <input id="nontax1" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="200,000">
                 <span class="input-suffix">원</span>
               </div>
               <p class="hint help">식대/자가운전 등</p>
@@ -226,7 +228,7 @@
             <div class="field">
               <label for="nontax2" class="text-sm text-gray-700">비과세(월)</label>
               <div class="input-wrap">
-                <input id="nontax2" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="예: 200,000">
+                <input id="nontax2" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="200,000">
                 <span class="input-suffix">원</span>
               </div>
               <p class="hint help">식대/자가운전 등</p>
