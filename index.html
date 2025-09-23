@@ -8,6 +8,7 @@
   <style>
     body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background:#f3f4f6 }
     .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
+
     .tone-input {
       width:100%; padding:.625rem .75rem; padding-right:3.25rem;
       border:1px solid #d1d5db; border-radius:.5rem; text-align:right; background:#fff;
@@ -15,27 +16,39 @@
     }
     .tone-input:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.2); }
     .tone-input.err { border-color:#ef4444; box-shadow:0 0 0 3px rgba(239,68,68,.15); background:#fff7f7; }
+
     .input-wrap { position: relative; }
     .input-suffix {
       position:absolute; right:.5rem; top:50%; transform:translateY(-50%);
       font-size:.75rem; color:#6b7280; padding:.125rem .375rem; border:1px solid #e5e7eb; border-radius:.375rem; background:#fff;
       pointer-events:none;
     }
+
+    /* 버튼: 프라이머리 블루 */
     .tone-btn  { background:#2563eb; color:#fff; border-radius:.625rem; padding:.625rem 1rem; font-weight:600; }
     .tone-btn:hover { background:#1d4ed8; }
+
     .tone-chip { display:inline-flex; gap:.375rem; align-items:center; padding:.25rem .5rem; border-radius:.375rem; font-size:.6875rem; font-weight:600; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; }
     .kicker { font-size:.75rem; color:#6b7280 }
     .value-xl { font-size:1.375rem; font-weight:800; color:#111827 }
     .value { font-weight:700; color:#111827 }
     .hint { font-size:.75rem; color:#6b7280 }
     .hr { height:1px; background:#e5e7eb; margin:1rem 0 }
+
+    /* 정렬 안정화: 모든 필드 하단 동일 높이(2줄) 기본값 */
     .field { display:flex; flex-direction:column; gap:.375rem; }
     .help { line-height:1.125rem; min-height: calc(2 * 1.125rem); }
+
+    /* 인풋 행(4칸 그리드) */
     @media (min-width:640px){
       .row { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:.75rem; align-items:end; }
     }
+    /* 모바일: 세로 배열 시 간격 축소 */
     @media (max-width:639.98px){
-      .row { display:grid; grid-template-columns:1fr; gap:.75rem; }
+      .row { display:grid; grid-template-columns:1fr; gap:.375rem; }    /* 행 간격 축소 */
+      .field { gap:.25rem; }                                            /* 라벨-인풋-헬프 간격 축소 */
+      .help { min-height:1.125rem; }                                    /* 헬프 1줄만 확보 */
+      .help:empty { min-height:0; }                                     /* 비어있으면 여백 제거 */
     }
   </style>
 </head>
@@ -191,7 +204,7 @@
   <script>
     // ========= 공통 유틸 =========
     const nf = new Intl.NumberFormat('ko-KR');
-    const toWon = n => nf.format(Math.round(n)) + ' 원';
+    const toWon = n => nf.format(Math.round(n)) + ' 원';              // 항상 '0 원' 표기
     const parseNum = el => parseFloat((el.value || '').replace(/[^\d]/g,'')) || 0;
 
     // 숫자 콤마: data-comma에 이벤트 위임
@@ -235,6 +248,7 @@
 
       [o.salary, o.days, o.third].forEach(el => el.addEventListener('input', recompute));
 
+      // 초기화(placeholder 노출 위해 third는 ''로 비움)
       o.resetBtn.addEventListener('click', () => {
         const {salary = '', days = '30', third = '', thirdPlaceholderEmpty = true} = o.defaults || {};
         o.salary.value = salary;
@@ -244,6 +258,7 @@
         recompute();
       });
 
+      // 최초 1회 계산(초기 0원 표기)
       recompute();
     }
 
