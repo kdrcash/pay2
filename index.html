@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>일할급여 계산기</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background:#f3f4f6 }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
+    .tone-input {
+      width:100%; padding:.625rem .75rem; padding-right:3.25rem;
+      border:1px solid #d1d5db; border-radius:.5rem; text-align:right; background:#fff;
+      outline:none; transition:box-shadow .2s, border-color .2s, background-color .2s;
+    }
+    .tone-input:focus { border-color:#2563eb; box-shadow:0 0 0 3px rgba(37,99,235,.2); }
+    .tone-input.err { border-color:#ef4444; box-shadow:0 0 0 3px rgba(239,68,68,.15); background:#fff7f7; }
+    .input-wrap { position: relative; }
+    .input-suffix {
+      position:absolute; right:.5rem; top:50%; transform:translateY(-50%);
+      font-size:.75rem; color:#6b7280; padding:.125rem .375rem; border:1px solid #e5e7eb; border-radius:.375rem; background:#fff;
+      pointer-events:none;
+    }
+    .tone-btn  { background:#2563eb; color:#fff; border-radius:.625rem; padding:.625rem 1rem; font-weight:600; }
+    .tone-btn:hover { background:#1d4ed8; }
+    .tone-chip { display:inline-flex; gap:.375rem; align-items:center; padding:.25rem .5rem; border-radius:.375rem; font-size:.6875rem; font-weight:600; color:#1d4ed8; background:#eff6ff; border:1px solid #bfdbfe; }
+    .kicker { font-size:.75rem; color:#6b7280 }
+    .value-xl { font-size:1.375rem; font-weight:800; color:#111827 }
+    .value { font-weight:700; color:#111827 }
+    .hint { font-size:.75rem; color:#6b7280 }
+    .hr { height:1px; background:#e5e7eb; margin:1rem 0 }
+    .field { display:flex; flex-direction:column; gap:.375rem; }
+    .help { line-height:1.125rem; min-height: calc(2 * 1.125rem); }
+    @media (min-width:640px){
+      .row { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:.75rem; align-items:end; }
+    }
+    @media (max-width:639.98px){
+      .row { display:grid; grid-template-columns:1fr; gap:.75rem; }
+    }
+  </style>
+</head>
+<body class="p-4 sm:p-6 flex items-center justify-center min-h-screen">
+
+  <main class="w-full max-w-[1200px]">
+    <!-- 전체를 하나의 화이트 카드로 감싸기 -->
+    <div class="card overflow-hidden">
+      <!-- 헤더(화이트 배경 내부) -->
+      <header class="px-5 sm:px-7 py-5 sm:py-6 bg-white">
+        <h1 class="text-3xl sm:text-[2rem] font-extrabold leading-tight text-gray-900 text-center">
+          일할급여 계산기
+        </h1>
+      </header>
+
+      <!-- 본문(카드 내부 컨텐츠) -->
+      <section class="px-5 sm:px-7 pb-6 bg-white">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="tone-chip">월급 ÷ 근무일수 = 일급</span>
+            <span class="tone-chip">근무일수 30일 기준</span>
+          </div>
+          <div class="hint">
+            ※ 해당 월 근무일수는 사규로 일괄 30일로 계산할 수 있으며, 통상적으로는 해당 월의 일수로 계산합니다.
+          </div>
+        </div>
+
+        <!-- 항상 세로(위→아래) 배치 -->
+        <div class="grid grid-cols-1 gap-5">
+          <!-- 공제일수 기준 -->
+          <article class="card p-5" id="calc-deduct">
+            <div class="mb-3">
+              <h2 class="text-lg font-bold text-gray-900">공제일수 기준</h2>
+              <div class="hint mt-1">지급액 = 월급 − (일급 × 공제일수)</div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="salary1" class="text-sm text-gray-700">급여액(월)</label>
+                <div class="input-wrap">
+                  <input id="salary1" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="5,000,000">
+                  <span class="input-suffix">원</span>
+                </div>
+                <p id="err_salary1" class="hint help"></p>
+              </div>
+
+              <div class="field">
+                <label for="days1" class="text-sm text-gray-700">해당 월 근무일수</label>
+                <div class="input-wrap">
+                  <input id="days1" data-comma type="text" inputmode="numeric" class="tone-input" value="30">
+                  <span class="input-suffix">일</span>
+                </div>
+                <p class="help"></p>
+              </div>
+
+              <div class="field">
+                <label for="deduct" class="text-sm text-gray-700">공제일수</label>
+                <div class="input-wrap">
+                  <input id="deduct" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="5">
+                  <span class="input-suffix">일</span>
+                </div>
+                <p class="hint help">※ 결근/무급휴가 등 공제해야 할 일수</p>
+              </div>
+
+              <div class="field">
+                <button id="reset1" class="tone-btn w-full" type="button">초기화</button>
+                <p class="help"></p>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="hint">일급</div>
+                <div id="daily1" class="value"></div>
+              </div>
+              <div>
+                <div class="hint">공제액(일급×공제일수)</div>
+                <div id="deductAmt" class="value"></div>
+              </div>
+              <div class="col-span-2">
+                <div class="hint">지급액</div>
+                <div id="result1" class="value-xl"></div>
+              </div>
+            </div>
+          </article>
+
+          <!-- 근무일수 기준 -->
+          <article class="card p-5" id="calc-work">
+            <div class="mb-3">
+              <h2 class="text-lg font-bold text-gray-900">근무일수 기준</h2>
+              <div class="hint mt-1">지급액 = 일급 × 근무일수</div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <label for="salary2" class="text-sm text-gray-700">급여액(월)</label>
+                <div class="input-wrap">
+                  <input id="salary2" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="5,000,000">
+                  <span class="input-suffix">원</span>
+                </div>
+                <p id="err_salary2" class="hint help"></p>
+              </div>
+
+              <div class="field">
+                <label for="days2" class="text-sm text-gray-700">해당 월 근무일수</label>
+                <div class="input-wrap">
+                  <input id="days2" data-comma type="text" inputmode="numeric" class="tone-input" value="30">
+                  <span class="input-suffix">일</span>
+                </div>
+                <p class="help"></p>
+              </div>
+
+              <div class="field">
+                <label for="work" class="text-sm text-gray-700">근무일수</label>
+                <div class="input-wrap">
+                  <input id="work" data-comma type="text" inputmode="numeric" class="tone-input" placeholder="25">
+                  <span class="input-suffix">일</span>
+                </div>
+                <p class="hint help">※ 실제로 일한 일수</p>
+              </div>
+
+              <div class="field">
+                <button id="reset2" class="tone-btn w-full" type="button">초기화</button>
+                <p class="help"></p>
+              </div>
+            </div>
+
+            <div class="hr"></div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <div class="hint">일급</div>
+                <div id="daily2" class="value"></div>
+              </div>
+              <div class="col-span-2">
+                <div class="hint">지급액</div>
+                <div id="result2" class="value-xl"></div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- 푸터(화이트 배경 내부) -->
+      <footer class="border-t px-5 sm:px-7 py-4 text-center text-xs text-gray-500 bg-white">
+        © 2024 한국병의원데이터. All Rights Reserved
+      </footer>
+    </div>
+  </main>
+
+  <script>
+    // ========= 공통 유틸 =========
+    const nf = new Intl.NumberFormat('ko-KR');
+    const toWon = n => nf.format(Math.round(n)) + ' 원';
+    const parseNum = el => parseFloat((el.value || '').replace(/[^\d]/g,'')) || 0;
+
+    // 숫자 콤마: data-comma에 이벤트 위임
+    document.addEventListener('input', (e) => {
+      const el = e.target;
+      if (!el.matches('[data-comma]')) return;
+      const raw = el.value.replace(/[^\d]/g, '');
+      el.value = raw ? nf.format(+raw) : '';
+    });
+
+    // 에러 토글
+    function setErr(el, msgEl, cond, msg){
+      if (!msgEl) return;
+      if (cond) { el.classList.add('err'); msgEl.textContent = msg; }
+      else { el.classList.remove('err'); msgEl.textContent = ''; }
+    }
+
+    // 일급
+    const daily = (salary, days) => (salary > 0 && days > 0) ? salary / days : 0;
+
+    // ========= 공통 세팅 함수 =========
+    function setupCalc(o){
+      const recompute = () => {
+        const s = parseNum(o.salary);
+        const d = parseNum(o.days);
+        const t = parseNum(o.third);
+
+        // 미입력이어도 결과는 0원 유지
+        setErr(o.salary, o.errEl, s <= 0, '급여액(월)을 입력해 주세요.');
+
+        const per = daily(s, d);
+        o.outDaily.textContent = toWon(per);
+        if (o.mode === 'deduct') {
+          const minus = per * t;
+          if (o.outOther) o.outOther.textContent = toWon(minus);
+          o.outTotal.textContent = toWon(Math.max(0, s - minus));
+        } else {
+          o.outTotal.textContent = toWon(Math.max(0, per * t));
+        }
+      };
+
+      [o.salary, o.days, o.third].forEach(el => el.addEventListener('input', recompute));
+
+      o.resetBtn.addEventListener('click', () => {
+        const {salary = '', days = '30', third = '', thirdPlaceholderEmpty = true} = o.defaults || {};
+        o.salary.value = salary;
+        o.days.value   = days;
+        o.third.value  = thirdPlaceholderEmpty ? '' : third; // ''이면 placeholder(5/25) 노출
+        [o.salary, o.days, o.third].forEach(el => el.dispatchEvent(new Event('input')));
+        recompute();
+      });
+
+      recompute();
+    }
+
+    // ========= 바인딩 =========
+    setupCalc({
+      mode: 'deduct',
+      salary: document.getElementById('salary1'),
+      days:   document.getElementById('days1'),
+      third:  document.getElementById('deduct'),
+      errEl:  document.getElementById('err_salary1'),
+      outDaily: document.getElementById('daily1'),
+      outOther: document.getElementById('deductAmt'),
+      outTotal: document.getElementById('result1'),
+      resetBtn: document.getElementById('reset1'),
+      defaults: { salary:'', days:'30', third:'', thirdPlaceholderEmpty:true }
+    });
+
+    setupCalc({
+      mode: 'work',
+      salary: document.getElementById('salary2'),
+      days:   document.getElementById('days2'),
+      third:  document.getElementById('work'),
+      errEl:  document.getElementById('err_salary2'),
+      outDaily: document.getElementById('daily2'),
+      outOther: null,
+      outTotal: document.getElementById('result2'),
+      resetBtn: document.getElementById('reset2'),
+      defaults: { salary:'', days:'30', third:'', thirdPlaceholderEmpty:true }
+    });
+  </script>
+</body>
+</html>
