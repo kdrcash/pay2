@@ -6,7 +6,7 @@
   <title>일할급여 계산기</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif; background:#f3f4f6 }
+    body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, Roboto, 'Apple SD Gothic Neo', sans-serif; background:#f3f4f6 }
     .card { background:#fff; border:1px solid #e5e7eb; border-radius:1rem; }
 
     .tone-input {
@@ -24,7 +24,6 @@
       pointer-events:none;
     }
 
-    /* 버튼: 프라이머리 블루 */
     .tone-btn  { background:#2563eb; color:#fff; border-radius:.625rem; padding:.625rem 1rem; font-weight:600; }
     .tone-btn:hover { background:#1d4ed8; }
 
@@ -34,7 +33,7 @@
     .hint { font-size:.75rem; color:#6b7280 }
     .hr { height:1px; background:#e5e7eb; margin:1rem 0 }
 
-    /* 정렬 안정화: 모든 필드 하단 동일 높이(2줄) */
+    /* 정렬 안정화: 모든 필드 하단 동일 높이(2줄 가정) */
     .field { display:flex; flex-direction:column; gap:.375rem; }
     .help { line-height:1.125rem; min-height: calc(2 * 1.125rem); }
 
@@ -43,7 +42,7 @@
       .row { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:.75rem; align-items:end; }
     }
     @media (max-width:639.98px){
-      .row { display:grid; grid-template-columns:1fr; gap:.5rem; } /* 모바일 간격 더 촘촘히 */
+      .row { display:grid; grid-template-columns:1fr; gap:.5rem; }
     }
 
     /* 명세서 카드 */
@@ -62,20 +61,22 @@
 <body class="p-4 sm:p-6 flex items-center justify-center min-h-screen">
 
   <main class="w-full max-w-[1200px]">
-    <!-- 상단: 제목을 화이트 카드 안으로 -->
+    <!-- 상단: 제목 카드 -->
     <section class="card p-5 sm:p-7 mb-4">
       <h1 class="text-3xl sm:text-[2rem] font-extrabold leading-tight text-gray-900 text-center">일할급여 계산기</h1>
     </section>
 
     <!-- 본문 -->
     <section class="card p-5 sm:p-7">
-      <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
+      <div class="flex items-center justify-between flex-wrap gap-2 mb-2">
         <div class="flex items-center gap-2">
           <span class="tone-chip">월급 ÷ 근무일수 = 일급</span>
           <span class="tone-chip">근무일수 30일 기준</span>
         </div>
-        <div class="hint">※ 해당 월 근무일수는 사규로 일괄 30일로 계산할 수 있으며, 통상적으로는 해당 월의 일수로 계산합니다.</div>
+        <div class="hint">※ 해당 월 근무일수는 사규로 30일로 계산할 수 있으며, 통상적으로는 해당 월의 일수로 계산합니다.</div>
       </div>
+      <!-- 세액표 상태 -->
+      <p id="tax_status" class="text-[11px] text-gray-400 mb-3">세액표 준비 상태: 로딩 중…</p>
 
       <div class="grid grid-cols-1 gap-5">
         <!-- 공제일수 기준 -->
@@ -140,15 +141,15 @@
           <div class="hr"></div>
           <h3 class="text-base font-bold text-gray-900 mb-2">급여명세서 내역</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- 좌: 지급총액 기준 -->
+            <!-- 좌: 지급총액 기준(지급액=지급총액) -->
             <div class="slip">
               <div class="flex items-center justify-between mb-2">
-                <h4>지급총액 기준</h4><span class="pill">급여액(월) = 지급총액</span>
+                <h4>지급총액 기준</h4><span class="pill">지급액 = 지급총액</span>
               </div>
               <div class="krow">
                 <div class="kbox"><div class="k">지급총액</div><div id="d_g_gross" class="v">0 원</div></div>
                 <div class="kbox"><div class="k">공제합계</div><div id="d_g_ded" class="v">0 원</div></div>
-                <div class="kbox col-span-2"><div class="k">차인지급액</div><div id="d_g_net" class="v">0 원</div></div>
+                <div class="kbox col-span-2"><div class="k">실수령액</div><div id="d_g_net" class="v">0 원</div></div>
               </div>
               <ul class="mt-3 space-y-1">
                 <li class="kv"><span>국민연금 (4.5%)</span><span id="d_g_np">0 원</span></li>
@@ -161,15 +162,15 @@
               <div class="mt-2 mini">* 비과세 0원 기준</div>
             </div>
 
-            <!-- 우: 차인지급액(세후) 기준 -->
+            <!-- 우: 실수령액 기준(지급액=실수령액) -->
             <div class="slip">
               <div class="flex items-center justify-between mb-2">
-                <h4>차인지급액 기준</h4><span class="pill">급여액(월) = 차인지급액</span>
+                <h4>실수령액 기준</h4><span class="pill">지급액 = 실수령액</span>
               </div>
               <div class="krow">
                 <div class="kbox"><div class="k">지급총액(환산)</div><div id="d_n_gross" class="v">0 원</div></div>
                 <div class="kbox"><div class="k">공제합계</div><div id="d_n_ded" class="v">0 원</div></div>
-                <div class="kbox col-span-2"><div class="k">차인지급액</div><div id="d_n_net" class="v">0 원</div></div>
+                <div class="kbox col-span-2"><div class="k">실수령액</div><div id="d_n_net" class="v">0 원</div></div>
               </div>
               <ul class="mt-3 space-y-1">
                 <li class="kv"><span>국민연금 (4.5%)</span><span id="d_n_np">0 원</span></li>
@@ -242,15 +243,15 @@
           <div class="hr"></div>
           <h3 class="text-base font-bold text-gray-900 mb-2">급여명세서 내역</h3>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <!-- 좌: 지급총액 기준 -->
+            <!-- 좌: 지급총액 기준(지급액=지급총액) -->
             <div class="slip">
               <div class="flex items-center justify-between mb-2">
-                <h4>지급총액 기준</h4><span class="pill">급여액(월) = 지급총액</span>
+                <h4>지급총액 기준</h4><span class="pill">지급액 = 지급총액</span>
               </div>
               <div class="krow">
                 <div class="kbox"><div class="k">지급총액</div><div id="w_g_gross" class="v">0 원</div></div>
                 <div class="kbox"><div class="k">공제합계</div><div id="w_g_ded" class="v">0 원</div></div>
-                <div class="kbox col-span-2"><div class="k">차인지급액</div><div id="w_g_net" class="v">0 원</div></div>
+                <div class="kbox col-span-2"><div class="k">실수령액</div><div id="w_g_net" class="v">0 원</div></div>
               </div>
               <ul class="mt-3 space-y-1">
                 <li class="kv"><span>국민연금 (4.5%)</span><span id="w_g_np">0 원</span></li>
@@ -263,15 +264,15 @@
               <div class="mt-2 mini">* 비과세 0원 기준</div>
             </div>
 
-            <!-- 우: 차인지급액(세후) 기준 -->
+            <!-- 우: 실수령액 기준(지급액=실수령액) -->
             <div class="slip">
               <div class="flex items-center justify-between mb-2">
-                <h4>차인지급액 기준</h4><span class="pill">급여액(월) = 차인지급액</span>
+                <h4>실수령액 기준</h4><span class="pill">지급액 = 실수령액</span>
               </div>
               <div class="krow">
                 <div class="kbox"><div class="k">지급총액(환산)</div><div id="w_n_gross" class="v">0 원</div></div>
                 <div class="kbox"><div class="k">공제합계</div><div id="w_n_ded" class="v">0 원</div></div>
-                <div class="kbox col-span-2"><div class="k">차인지급액</div><div id="w_n_net" class="v">0 원</div></div>
+                <div class="kbox col-span-2"><div class="k">실수령액</div><div id="w_n_net" class="v">0 원</div></div>
               </div>
               <ul class="mt-3 space-y-1">
                 <li class="kv"><span>국민연금 (4.5%)</span><span id="w_n_np">0 원</span></li>
@@ -288,7 +289,7 @@
       </div>
     </section>
 
-    <!-- 푸터(화이트 카드 안) -->
+    <!-- 푸터(화이트 카드) -->
     <section class="card p-4 text-center mt-4">
       <footer class="text-xs text-gray-500">© 2024 한국병의원데이터. All Rights Reserved</footer>
     </section>
@@ -297,11 +298,12 @@
   <script>
     // ========= 공통 유틸 =========
     const nf = new Intl.NumberFormat('ko-KR');
-    const toWon = n => nf.format(Math.round(n)) + ' 원';          // 항상 0 원 포함
+    const toWon = n => nf.format(Math.round(n)) + ' 원';
     const parseNum = el => parseFloat((el.value || '').replace(/[^\d]/g,'')) || 0;
     const trunc10 = v => Math.floor(v/10)*10;
+    const clamp = (x,lo,hi)=>Math.min(Math.max(x,lo),hi);
 
-    // 숫자 콤마: data-comma에 이벤트 위임
+    // 입력 콤마(이벤트 위임)
     document.addEventListener('input', (e) => {
       const el = e.target;
       if (!el.matches('[data-comma]')) return;
@@ -309,14 +311,14 @@
       el.value = raw ? nf.format(+raw) : '';
     });
 
-    // 에러 토글
-    function setErr(el, msgEl, cond, msg){
+    // 에러 토글(메시지는 항상 표시해 간격 유지)
+    function setErr(el, msgEl, cond){
       if (!msgEl) return;
-      if (cond) { el.classList.add('err'); msgEl.textContent = msg; }
-      else { el.classList.remove('err'); msgEl.textContent = '급여액(월)을 입력해 주세요.'; }
+      if (cond) el.classList.add('err'); else el.classList.remove('err');
+      msgEl.textContent = '급여액(월)을 입력해 주세요.';
     }
 
-    // ====== 일할 계산 ======
+    // ====== 일할 계산 섹션 ======
     const salary1 = document.getElementById('salary1');
     const days1   = document.getElementById('days1');
     const deduct  = document.getElementById('deduct');
@@ -338,24 +340,30 @@
       const s = parseNum(salary1);
       const d = parseNum(days1);
       const k = parseNum(deduct);
-      setErr(salary1, errSalary1, s<=0, '급여액(월)을 입력해 주세요.');
+      setErr(salary1, errSalary1, s<=0);
+
       const per = daily(s,d);
       daily1.textContent = toWon(per);
       const minus = per * k;
       deductAmt.textContent = toWon(minus);
-      result1.textContent = toWon(Math.max(0, s - minus));
-      updateSlipFromInputs('d', s); // 명세서 업데이트
+      const pay = Math.max(0, s - minus);
+      result1.textContent = toWon(pay);
+
+      updateSlipsWithPay('d', pay); // 지급액을 기준으로 명세서 갱신
     }
 
     function calcByWork(){
       const s = parseNum(salary2);
       const d = parseNum(days2);
       const w = parseNum(work);
-      setErr(salary2, errSalary2, s<=0, '급여액(월)을 입력해 주세요.');
+      setErr(salary2, errSalary2, s<=0);
+
       const per = daily(s,d);
       daily2.textContent = toWon(per);
-      result2.textContent = toWon(Math.max(0, per * w));
-      updateSlipFromInputs('w', s); // 명세서 업데이트
+      const pay = Math.max(0, per * w);
+      result2.textContent = toWon(pay);
+
+      updateSlipsWithPay('w', pay); // 지급액을 기준으로 명세서 갱신
     }
 
     [salary1, days1, deduct].forEach(el => el && el.addEventListener('input', calcByDeduct));
@@ -373,29 +381,32 @@
     });
 
     // ========= 급여명세서(세금/4대보험) =========
-    // 파라미터(사용자 제공 로직과 동일)
+    // 파라미터
     const NP_MIN=400_000, NP_MAX=6_370_000;            // 국민연금 기준소득 하·상한
     const HI_MIN=279_266, HI_MAX=127_056_982;          // 건강보험 보수월액 하·상한
     const NP_RATE=0.0450, HI_RATE=0.03545, LTC_RATE=0.1295, EI_RATE=0.0090;
     const NP_ER_RATE=0.0450, HI_ER_RATE=0.03545, LTC_ER_RATE=0.1295, EI_ER_RATE=0.0115, WCI_ER_RATE=0.0072;
     const BASE10_1PERSON_RAW=1_507_405;                // 간이세액표 보간 기준(1인)
-    const NON_TAX_DEFAULT = 0;                          // 비과세 기본값(필요시 조정)
+    const NON_TAX_DEFAULT = 0;                          // 비과세 기본값
 
     // 세액표 로드
+    const taxStatusEl = document.getElementById('tax_status');
     let TAX_TABLE=[], tableReady=false;
     async function loadTax(){
       try{
         const r = await fetch('./simplified_tax_table_2024_1person.v2.json',{cache:'no-store'});
+        if(!r.ok) throw new Error('HTTP '+r.status);
         TAX_TABLE = await r.json();
         TAX_TABLE.sort((a,b)=>a.min_won-b.min_won);
         tableReady=true;
-        // 초기 계산
+        taxStatusEl.textContent = '세액표 준비 상태: 로드 완료';
+      }catch(e){
+        tableReady=false;
+        taxStatusEl.textContent = '세액표 준비 상태: 로드 실패 - ' + (e?.message || '알 수 없는 오류');
+      }finally{
+        // 초기 표시는 0원 유지
         calcByDeduct();
         calcByWork();
-      }catch(e){
-        console.error('세액표 로드 실패', e);
-        // 그래도 보간식으로 계산 가능
-        tableReady=false;
       }
     }
     loadTax();
@@ -415,7 +426,7 @@
         const r=lookupTable(amountExclNT);
         if(r.found) return trunc10(r.tax);
       }
-      // 보간식(테이블 범위 밖/미로드 대비)
+      // 보간식(테이블 외/미로드 대비)
       const g=amountExclNT, b10=BASE10_1PERSON_RAW; let t=b10;
       if(g>10_000_000&&g<=14_000_000) t += 25_000 + 0.35*0.98*(g-10_000_000);
       else if(g>14_000_000&&g<=28_000_000) t += 1397000 + 0.38*0.98*(g-14_000_000);
@@ -426,9 +437,7 @@
       return trunc10(t);
     }
 
-    function clamp(x,lo,hi){ return Math.min(Math.max(x,lo),hi); }
-
-    // 지급총액 → 차인지급액(단방향)
+    // 지급총액 → 실수령액
     function computeFromGross(gross, nonTax=0){
       const baseIns = Math.max(gross - nonTax, 0);
       const baseNP = clamp(Math.floor(baseIns/1000)*1000, NP_MIN, NP_MAX);
@@ -448,7 +457,7 @@
       return { gross, net, total, np, hi, ltc, ei, tax, ltax };
     }
 
-    // 차인지급액 → 지급총액(역산: 고정점 수렴)
+    // 실수령액 → 지급총액(역산)
     function computeFromNet(netPay, nonTax=0){
       if(netPay<=0) return { gross:0, net:0, total:0, np:0,hi:0,ltc:0,ei:0,tax:0,ltax:0 };
       let approx = NP_RATE + HI_RATE + (HI_RATE*LTC_RATE) + EI_RATE;
@@ -472,17 +481,15 @@
         if (Math.abs(newGross - gross) < 1) { gross = newGross; break; }
         gross = newGross;
       }
-      // 최종 한 번 더
       const r = computeFromGross(gross, nonTax);
-      r.net = netPay; // 입력이 차인지급액
+      r.net = netPay; // 입력 자체가 실수령액
       return r;
     }
 
-    // DOM 유틸
+    // DOM 출력 유틸
     function put(id, val){ const el=document.getElementById(id); if(el) el.textContent = (typeof val==='number') ? toWon(val) : val; }
 
-    // 명세서 렌더링
-    function renderSlip(prefix, model){ // prefix 예: 'd_g_' / 'd_n_' / 'w_g_' / 'w_n_'
+    function renderSlip(prefix, model){ // prefix: d_g_, d_n_, w_g_, w_n_
       put(prefix+'gross', model.gross);
       put(prefix+'ded',   model.total);
       put(prefix+'net',   model.net);
@@ -494,19 +501,16 @@
       put(prefix+'ltax',  model.ltax);
     }
 
-    // 입력으로부터 두 카드 업데이트
-    function updateSlipFromInputs(groupPrefix, salaryVal){
-      // groupPrefix: 'd' or 'w'
-      const s = salaryVal || 0;
-      // 좌: 지급총액 기준 (급여액=지급총액)
-      const mGross = computeFromGross(s, NON_TAX_DEFAULT);
-      renderSlip(groupPrefix+'_g_', mGross);
-      // 우: 차인지급액 기준 (급여액=차인지급액)
-      const mNet = computeFromNet(s, NON_TAX_DEFAULT);
-      renderSlip(groupPrefix+'_n_', mNet);
+    // 지급액을 받아 두 카드 갱신
+    function updateSlipsWithPay(groupPrefix, pay){
+      // pay가 0이면 전부 0 표시(요구사항)
+      const left  = (pay>0) ? computeFromGross(pay, NON_TAX_DEFAULT) : {gross:0,net:0,total:0,np:0,hi:0,ltc:0,ei:0,tax:0,ltax:0};
+      const right = (pay>0) ? computeFromNet(pay,   NON_TAX_DEFAULT) : {gross:0,net:0,total:0,np:0,hi:0,ltc:0,ei:0,tax:0,ltax:0};
+      renderSlip(groupPrefix+'_g_', left);
+      renderSlip(groupPrefix+'_n_', right);
     }
 
-    // 최초 표시
+    // 최초 표시(0원 유지)
     calcByDeduct();
     calcByWork();
   </script>
