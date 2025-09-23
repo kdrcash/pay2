@@ -35,7 +35,7 @@
     .hint { font-size:.75rem; color:#6b7280 }
     .hr { height:1px; background:#e5e7eb; margin:1rem 0 }
 
-    /* 정렬 안정화: 모든 필드 하단 동일 높이(2줄) 기본값 */
+    /* 기본: 정렬 안정화(2줄 확보) */
     .field { display:flex; flex-direction:column; gap:.375rem; }
     .help { line-height:1.125rem; min-height: calc(2 * 1.125rem); }
 
@@ -43,28 +43,29 @@
     @media (min-width:640px){
       .row { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:.75rem; align-items:end; }
     }
-    /* 모바일: 세로 배열 시 간격 축소 */
+
+    /* 모바일: 세로 배열 시 간격 고정(항상 힌트 1줄 있다고 가정) */
     @media (max-width:639.98px){
-      .row { display:grid; grid-template-columns:1fr; gap:.375rem; }    /* 행 간격 축소 */
-      .field { gap:.25rem; }                                            /* 라벨-인풋-헬프 간격 축소 */
-      .help { min-height:1.125rem; }                                    /* 헬프 1줄만 확보 */
-      .help:empty { min-height:0; }                                     /* 비어있으면 여백 제거 */
+      .row { display:grid; grid-template-columns:1fr; gap:.375rem; }  /* 행 간격 축소 */
+      .field { gap:.25rem; }                                          /* 라벨-인풋-헬프 간격 축소 */
+      .help { min-height:1.125rem; }                                  /* 힌트 1줄 고정(유무와 무관) */
+      /* .help:empty 규칙 제거 → 표기가 없어도 1줄 공간 유지 */
     }
   </style>
 </head>
 <body class="p-4 sm:p-6 flex items-center justify-center min-h-screen">
 
   <main class="w-full max-w-[1200px]">
-    <!-- 전체를 하나의 화이트 카드로 감싸기 -->
+    <!-- 전체 화이트 카드 -->
     <div class="card overflow-hidden">
-      <!-- 헤더(화이트 배경 내부) -->
+      <!-- 헤더 -->
       <header class="px-5 sm:px-7 py-5 sm:py-6 bg-white">
         <h1 class="text-3xl sm:text-[2rem] font-extrabold leading-tight text-gray-900 text-center">
           일할급여 계산기
         </h1>
       </header>
 
-      <!-- 본문(카드 내부 컨텐츠) -->
+      <!-- 본문 -->
       <section class="px-5 sm:px-7 pb-6 bg-white">
         <div class="flex items-center justify-between flex-wrap gap-2 mb-4">
           <div class="flex items-center gap-2">
@@ -76,7 +77,7 @@
           </div>
         </div>
 
-        <!-- 항상 세로(위→아래) 배치 -->
+        <!-- 계산 카드들 -->
         <div class="grid grid-cols-1 gap-5">
           <!-- 공제일수 기준 -->
           <article class="card p-5" id="calc-deduct">
@@ -194,7 +195,7 @@
         </div>
       </section>
 
-      <!-- 푸터(화이트 배경 내부) -->
+      <!-- 푸터 -->
       <footer class="border-t px-5 sm:px-7 py-4 text-center text-xs text-gray-500 bg-white">
         © 2024 한국병의원데이터. All Rights Reserved
       </footer>
@@ -204,7 +205,7 @@
   <script>
     // ========= 공통 유틸 =========
     const nf = new Intl.NumberFormat('ko-KR');
-    const toWon = n => nf.format(Math.round(n)) + ' 원';              // 항상 '0 원' 표기
+    const toWon = n => nf.format(Math.round(n)) + ' 원';
     const parseNum = el => parseFloat((el.value || '').replace(/[^\d]/g,'')) || 0;
 
     // 숫자 콤마: data-comma에 이벤트 위임
@@ -258,7 +259,7 @@
         recompute();
       });
 
-      // 최초 1회 계산(초기 0원 표기)
+      // 최초 1회 계산
       recompute();
     }
 
