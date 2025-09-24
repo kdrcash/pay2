@@ -350,12 +350,17 @@
         </div>
 
         <div>
-          <h4 class="font-semibold text-gray-900 mb-2">상·하한 (현재 계산식 사용값)</h4>
+          <h4 class="font-semibold text-gray-900 mb-2">상·하한 / 면세 기준 (현재 계산식 사용값)</h4>
           <div class="rounded-lg bg-gray-50 border border-gray-200 p-3 space-y-1 text-[13px]">
             <div class="flex justify-between"><span>국민연금 기준소득월액 하한</span><span id="np_min_label"></span></div>
             <div class="flex justify-between"><span>국민연금 기준소득월액 상한</span><span id="np_max_label"></span></div>
             <div class="flex justify-between"><span>건강보험 보수월액 하한</span><span id="hi_min_label"></span></div>
             <div class="flex justify-between"><span>건강보험 보수월액 상한</span><span id="hi_max_label"></span></div>
+            <!-- ✅ 소득세 면세 기준 추가 -->
+            <div class="flex justify-between font-semibold">
+              <span>소득세 면세 기준</span>
+              <span id="tax_zero_label"></span>
+            </div>
           </div>
         </div>
       </div>
@@ -467,6 +472,9 @@
     const NP_ER_RATE=0.0450, HI_ER_RATE=0.03545, LTC_ER_RATE=0.1295, EI_ER_RATE=0.0115, WCI_ER_RATE=0.0072;
     const BASE10_1PERSON_RAW=1_507_405;
 
+    // ✅ 소득세 면세 기준(비과세 제외 보수월액이 이 금액 미만이면 소득세/지방소득세 0)
+    const TAX_ZERO_THRESHOLD = 1_060_000;
+
     // 세액표 로드
     const taxStatusEl = document.getElementById('tax_status');
     let TAX_TABLE=[], tableReady=false;
@@ -523,8 +531,10 @@
       const hi  = trunc10(baseHI * HI_RATE);
       const ltc = trunc10(hi * LTC_RATE);
       const ei  = trunc10(baseEI * EI_RATE);
-      const tax = trunc10(simplifiedTax(baseIns));
-      const ltax= trunc10(tax * 0.1);
+
+      // ✅ 면세 기준 적용
+      const tax  = (baseIns < TAX_ZERO_THRESHOLD) ? 0 : trunc10(simplifiedTax(baseIns));
+      const ltax = (baseIns < TAX_ZERO_THRESHOLD) ? 0 : trunc10(tax * 0.1);
 
       const total = np + hi + ltc + ei + tax + ltax;
       const net = Math.max(0, gross - total);
@@ -547,8 +557,10 @@
         const hi  = trunc10(baseHI * HI_RATE);
         const ltc = trunc10(hi * LTC_RATE);
         const ei  = trunc10(baseEI * EI_RATE);
-        const tax = trunc10(simplifiedTax(baseIns));
-        const ltax= trunc10(tax * 0.1);
+
+        // ✅ 면세 기준 적용
+        const tax  = (baseIns < TAX_ZERO_THRESHOLD) ? 0 : trunc10(simplifiedTax(baseIns));
+        const ltax = (baseIns < TAX_ZERO_THRESHOLD) ? 0 : trunc10(tax * 0.1);
 
         const total = np + hi + ltc + ei + tax + ltax;
         const newGross = netPay + total;
@@ -598,6 +610,9 @@
       document.getElementById('np_max_label').textContent = toWon(6370000);
       document.getElementById('hi_min_label').textContent = toWon(279266);
       document.getElementById('hi_max_label').textContent = toWon(127056982);
+      // ✅ 면세 기준 라벨 세팅
+      const tz = document.getElementById('tax_zero_label');
+      if (tz) tz.textContent = toWon(TAX_ZERO_THRESHOLD);
     }
     function openVerModal(){ fillVerModalBounds(); verModal.classList.add('show'); document.body.classList.add('overflow-hidden'); }
     function closeVerModal(){ verModal.classList.remove('show'); document.body.classList.remove('overflow-hidden'); }
