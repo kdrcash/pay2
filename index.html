@@ -97,16 +97,16 @@
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <label class="text-sm font-semibold text-gray-700">최저시급 (원)</label>
-            <input id="min_wage" type="text" value="10,030"
+            <input id="min_wage" type="text" value="10,320"
                    class="input-xl input-wage focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="최저시급">
           </div>
-          <p class="text-xs text-gray-400 -mt-1 ml-[95px] w-[140px] text-center">2025년 기준</p>
+          <p class="text-xs text-gray-400 -mt-1 ml-[95px] w-[140px] text-center">2026년 기준</p>
         </div>
 
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <label class="text-sm font-semibold text-gray-700">계약시급 (원)</label>
-            <input id="contract_wage" type="text" value="10,030"
+            <input id="contract_wage" type="text" value="10,320"
                    class="input-xl input-wage focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="계약시급(주휴 별도)">
           </div>
           <p class="text-xs text-gray-400 -mt-1 ml-[95px] w-[140px] text-center">주휴수당 별도</p>
@@ -115,7 +115,7 @@
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <label class="text-sm font-semibold text-gray-700">계약시급 (원)</label>
-            <input id="contract_wage2_u5" type="text" value="10,030"
+            <input id="contract_wage2_u5" type="text" value="10,320"
                    class="input-xl input-wage focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="계약시급 주휴 포함(5인 미만)">
           </div>
           <p class="text-xs text-gray-400 -mt-1 ml-[95px] w-[140px] text-center">주휴수당 포함(5인 미만)</p>
@@ -124,7 +124,7 @@
         <div class="flex flex-col gap-2">
           <div class="flex items-center gap-2">
             <label class="text-sm font-semibold text-gray-700">계약시급 (원)</label>
-            <input id="contract_wage2_o5" type="text" value="10,030"
+            <input id="contract_wage2_o5" type="text" value="10,320"
                    class="input-xl input-wage focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="계약시급 주휴 포함(5인 이상)">
           </div>
           <p class="text-xs text-gray-400 -mt-1 ml-[95px] w-[140px] text-center">주휴수당 포함(5인 이상)</p>
@@ -296,7 +296,7 @@
           <div class="flex-1">
             <div class="flex items-center gap-2"><span class="font-semibold text-gray-900">세전(기본)</span></div>
             <p class="text-gray-600 mt-1">입력한 계약시급을 <b>세전 시급</b>으로 계산합니다.</p>
-            <p class="text-gray-500 mt-1">예) 월총 182시간 × 10,030원 = 세전 월급 산정 → 공제 차감</p>
+            <p class="text-gray-500 mt-1">예) 월총 182시간 × 10,320원 = 세전 월급 산정 → 공제 차감</p>
           </div>
         </label>
 
@@ -691,7 +691,7 @@
 
     function resetAll(){
       tbody.innerHTML=''; for(let i=0;i<3;i++) addRow(i);
-      const nf10k = nf.format(10030);
+      const nf10k = nf.format(10320);
       minInput.value = nf10k;
       conInput.value = nf10k;
       conInput2U5.value = nf10k;
